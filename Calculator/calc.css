@@ -1,0 +1,1311 @@
+/* =====================================================================
+   THE HERTA CALCULATOR — style.css
+   Sections:
+   1.  Variables & Reset
+   2.  Background & Atmosphere
+   3.  Layout
+   4.  Portrait (image card, glow, sparkles, hover)
+   5.  Calculator Shell
+   6.  Display
+   7.  Keys
+   8.  Animations (keyframes)
+   9.  Responsive
+   10. Reduced Motion (now section 17, kept last)
+   11. Interactive background + cursor trail
+   12. Picture card 3D tilt / hologram
+   13. Calculator extras
+   14. Herta special button
+   15. Herta special ability overlay
+   16. New keyframes
+   ===================================================================== */
+
+
+/* =====================================================================
+   1. VARIABLES & RESET
+   ===================================================================== */
+:root {
+    --bg-deep:        #07030f;
+    --bg-purple:      #1a0b33;
+    --violet:         #8b5cf6;
+    --violet-bright:  #a78bfa;
+    --lavender:       #d8c8ff;
+    --silver:         #e6e4f2;
+    --silver-dim:     #a39bc0;
+    --magic-blue:     #6f8cff;
+    --pink-accent:    #f0a6ff;
+
+    --glass:          rgba(24, 12, 48, 0.58);
+    --glass-border:   rgba(190, 160, 255, 0.28);
+
+    --font-title:     'Cinzel', 'Times New Roman', serif;
+    --font-number:    'Rajdhani', 'Segoe UI', Arial, sans-serif;
+
+    --ease-out:       cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+[hidden] { display: none !important; }
+
+html, body {
+    min-height: 100%;
+    overflow-x: hidden;
+}
+
+body {
+    min-height: 100vh;
+    min-height: 100dvh;
+    font-family: var(--font-number);
+    color: var(--silver);
+    background:
+        radial-gradient(ellipse at 20% 10%, #2a1054 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 90%, #1b1b5e 0%, transparent 50%),
+        linear-gradient(160deg, var(--bg-purple), var(--bg-deep) 70%);
+    background-attachment: fixed;
+    -webkit-tap-highlight-color: transparent;
+}
+
+button { font: inherit; color: inherit; border: 0; cursor: pointer; background: none; }
+
+
+/* =====================================================================
+   2. BACKGROUND & ATMOSPHERE
+   ===================================================================== */
+#particles {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.atmosphere {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.45;
+    animation: orbDrift 18s ease-in-out infinite alternate;
+}
+.orb-1 { width: 42vmax; height: 42vmax; left: -12vmax; top: -10vmax; background: #6a2fd1; }
+.orb-2 { width: 36vmax; height: 36vmax; right: -10vmax; bottom: -12vmax; background: #3b4fd8; animation-delay: -6s; }
+.orb-3 { width: 22vmax; height: 22vmax; left: 45%; top: 55%; background: #b05cf0; opacity: 0.22; animation-delay: -11s; }
+
+.vignette {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
+}
+
+
+/* =====================================================================
+   3. LAYOUT
+   ===================================================================== */
+.app {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: grid;
+    grid-template-columns: minmax(260px, 380px) minmax(300px, 400px);
+    gap: clamp(1.5rem, 4vw, 3.5rem);
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+}
+
+
+/* =====================================================================
+   4. PORTRAIT
+   Layer order inside .portrait-frame (bottom -> top):
+     media (backdrop + image) -> fallback -> glow -> flash -> shine -> caption
+   ===================================================================== */
+.portrait {
+    position: relative;
+    width: 100%;
+    animation: slideInLeft 1s var(--ease-out) backwards;
+}
+
+.portrait-aura {
+    position: absolute;
+    inset: -8%;
+    border-radius: 40%;
+    background:
+        radial-gradient(circle at 50% 40%, rgba(167, 139, 250, 0.7), transparent 60%),
+        radial-gradient(circle at 60% 80%, rgba(111, 140, 255, 0.45), transparent 60%);
+    filter: blur(38px);
+    animation: auraPulse 5s ease-in-out infinite;
+}
+
+/* Extra aura surge when a number is clicked (class added by script.js) */
+.portrait.is-surge .portrait-aura { animation: auraSurge 0.9s ease-out; }
+
+.portrait-frame {
+    position: relative;
+    isolation: isolate;
+    width: 100%;
+    height: min(72vh, 560px);
+    border-radius: 26px;
+    overflow: hidden;
+    background: linear-gradient(160deg, #2a1456, #0e0620);
+    border: 1px solid rgba(206, 184, 255, 0.5);
+    box-shadow:
+        0 0 0 4px rgba(139, 92, 246, 0.12),
+        0 0 40px rgba(139, 92, 246, 0.5),
+        0 25px 60px rgba(0, 0, 0, 0.6);
+    transition:
+        transform 0.45s var(--ease-out),
+        box-shadow 0.45s ease,
+        border-color 0.45s ease;
+}
+
+/* Smooth hover effect (only on devices that really hover) */
+@media (hover: hover) {
+    .portrait:hover .portrait-frame {
+        transform: translateY(-6px) scale(1.015);
+        border-color: rgba(235, 220, 255, 0.85);
+        box-shadow:
+            0 0 0 4px rgba(139, 92, 246, 0.25),
+            0 0 64px rgba(167, 139, 250, 0.8),
+            0 32px 70px rgba(0, 0, 0, 0.65);
+    }
+}
+
+/* Card glow whenever a number is clicked */
+.portrait-frame.is-pulsing { animation: framePulse 0.9s ease-out; }
+
+/* ---- Media layer: blurred backdrop + image ---- */
+.portrait-media {
+    position: absolute;
+    inset: 0;
+    will-change: transform;
+    animation: portraitBreath 7s ease-in-out infinite alternate;
+}
+
+/* Blurred, darkened copy of the image: fills the space "contain" leaves empty */
+.portrait-backdrop {
+    position: absolute;
+    inset: -12%;
+    background-size: cover;
+    background-position: center;
+    filter: blur(22px) saturate(1.3) brightness(0.55);
+}
+
+/* Fill the card while preserving the image's aspect ratio */
+.portrait-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    will-change: opacity, transform;
+    transition: opacity 0.26s ease, transform 0.26s ease, filter 0.26s ease;
+}
+
+/* Smooth fade-out before the image is replaced */
+.portrait-img.is-leaving {
+    opacity: 0;
+    transform: scale(0.94);
+    filter: brightness(1.8) saturate(1.4);
+}
+
+/* Fade-in + slight zoom-in for the new image */
+.portrait-img.is-entering {
+    transition: none;
+    animation: imageIn 0.75s var(--ease-out) both;
+}
+
+/* ---- Purple glow around the image (inner glow) ---- */
+.portrait-glow {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    box-shadow:
+        inset 0 0 38px rgba(167, 139, 250, 0.55),
+        inset 0 0 90px rgba(111, 140, 255, 0.22);
+    animation: glowBreathe 4s ease-in-out infinite;
+}
+
+/* ---- Magic flash + expanding ring on every image change ---- */
+.portrait-flash {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    mix-blend-mode: screen;
+    background: radial-gradient(circle at 50% 45%,
+        rgba(240, 228, 255, 0.85),
+        rgba(167, 139, 250, 0.35) 40%,
+        transparent 70%);
+}
+.portrait-flash::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 45%;
+    width: 40%;
+    aspect-ratio: 1;
+    margin: -20% 0 0 -20%;
+    border-radius: 50%;
+    border: 2px solid rgba(225, 205, 255, 0.9);
+    box-shadow: 0 0 18px rgba(167, 139, 250, 0.9);
+    opacity: 0;
+}
+.portrait-flash.is-active          { animation: flashPulse 0.8s ease-out; }
+.portrait-flash.is-active::after   { animation: ringExpand 0.8s ease-out; }
+
+.portrait-shine {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, 0.12) 50%, transparent 65%),
+        linear-gradient(to top, rgba(10, 4, 24, 0.92) 0%, transparent 38%);
+    background-size: 250% 100%, 100% 100%;
+    animation: shine 6s ease-in-out infinite;
+}
+
+.portrait-caption {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    padding: 1rem 1.2rem 1.2rem;
+    text-align: center;
+}
+.portrait-caption h2 {
+    font-family: var(--font-title);
+    font-size: 1.5rem;
+    letter-spacing: 0.12em;
+    color: #fff;
+    text-shadow: 0 0 14px rgba(167, 139, 250, 0.9);
+}
+.portrait-caption p {
+    font-size: 0.85rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--silver-dim);
+}
+.caption-star {
+    display: inline-block;
+    color: var(--pink-accent);
+    font-size: 1.1rem;
+    animation: spinStar 6s linear infinite;
+}
+
+/* Fallback when herta.png is missing */
+.portrait-fallback {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    text-align: center;
+    color: var(--silver-dim);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+.portrait-fallback svg { width: 70%; max-width: 240px; animation: spinSlow 40s linear infinite; }
+.portrait-fallback strong { color: var(--lavender); }
+.fb-ring { fill: none; stroke: var(--violet-bright); stroke-width: 1; opacity: 0.7; }
+.fb-dash { stroke-dasharray: 3 5; }
+.fb-tri  { fill: none; stroke: var(--magic-blue); stroke-width: 0.8; opacity: 0.6; }
+.fb-star { fill: var(--lavender); filter: drop-shadow(0 0 6px var(--violet-bright)); }
+
+/* Floating ornaments */
+.ornament {
+    position: absolute;
+    z-index: 3;
+    color: var(--lavender);
+    text-shadow: 0 0 10px var(--violet), 0 0 20px var(--violet);
+    pointer-events: none;
+    animation: floatOrnament 5s ease-in-out infinite;
+}
+.orn-1 { top: -14px;  left: 12%;  font-size: 1.6rem; }
+.orn-2 { top: 18%;    right: -14px; font-size: 1.4rem; color: var(--pink-accent); animation-delay: -1.2s; }
+.orn-3 { bottom: 22%; left: -12px; font-size: 1.3rem; animation-delay: -2.4s; }
+.orn-4 { bottom: -10px; right: 18%; font-size: 1.5rem; color: var(--pink-accent); animation-delay: -3.1s; }
+.orn-5 { top: 42%;    left: -16px; font-size: 0.9rem; color: var(--magic-blue); animation-delay: -0.6s; }
+
+/* ---- Magical sparkles around the card (created by script.js) ---- */
+.sparkle {
+    position: absolute;
+    z-index: 4;
+    left: var(--x);
+    top: var(--y);
+    font-size: var(--size, 1rem);
+    line-height: 1;
+    color: var(--c, var(--lavender));
+    text-shadow: 0 0 8px var(--violet), 0 0 16px var(--violet);
+    pointer-events: none;
+    opacity: 0;
+    will-change: transform, opacity;
+    animation: sparkleDrift var(--dur, 4s) ease-in-out var(--delay, 0s) infinite;
+}
+
+/* Short burst fired on every number click */
+.sparkle-burst {
+    position: absolute;
+    z-index: 4;
+    left: var(--x);
+    top: var(--y);
+    font-size: var(--size, 1rem);
+    line-height: 1;
+    color: var(--c, var(--lavender));
+    text-shadow: 0 0 8px var(--violet), 0 0 16px var(--violet);
+    pointer-events: none;
+    opacity: 0;
+    will-change: transform, opacity;
+    animation: sparkleBurst 0.9s ease-out forwards;
+}
+
+
+/* =====================================================================
+   5. CALCULATOR SHELL
+   ===================================================================== */
+.calculator-wrap {
+    position: relative;
+    width: 100%;
+    animation: riseIn 1s var(--ease-out) 0.2s backwards;
+}
+
+.magic-circle {
+    position: absolute;
+    width: 150%;
+    max-width: 640px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0.4;
+    pointer-events: none;
+    animation: spinSlow 60s linear infinite;
+    z-index: 0;
+}
+.mc-line { fill: none; stroke: var(--violet-bright); stroke-width: 0.4; }
+.mc-dash { stroke-dasharray: 1 3; stroke: var(--magic-blue); }
+.mc-dot  { fill: var(--lavender); }
+
+.calculator {
+    position: relative;
+    z-index: 1;
+    padding: 1.3rem 1.2rem 1.4rem;
+    border-radius: 28px;
+    background:
+        linear-gradient(160deg, rgba(60, 30, 110, 0.55), rgba(14, 6, 32, 0.78));
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.04) inset,
+        0 0 36px rgba(139, 92, 246, 0.35),
+        0 30px 70px rgba(0, 0, 0, 0.65);
+    animation: shellGlow 6s ease-in-out infinite;
+}
+
+.calculator.is-glowing { animation: shellFlash 0.9s ease-out; }
+
+.corner {
+    position: absolute;
+    font-size: 0.75rem;
+    color: var(--lavender);
+    text-shadow: 0 0 8px var(--violet);
+    animation: twinkle 3s ease-in-out infinite;
+}
+.corner-tl { top: 10px;    left: 14px; }
+.corner-tr { top: 10px;    right: 14px; animation-delay: -0.8s; }
+.corner-bl { bottom: 10px; left: 14px;  animation-delay: -1.6s; }
+.corner-br { bottom: 10px; right: 14px; animation-delay: -2.4s; }
+
+.calculator-header { text-align: center; margin-bottom: 0.9rem; }
+.calculator-header h1 {
+    font-family: var(--font-title);
+    font-size: clamp(1rem, 3.6vw, 1.25rem);
+    letter-spacing: 0.1em;
+    color: #fff;
+    text-shadow: 0 0 14px rgba(167, 139, 250, 0.85);
+}
+.calculator-header h1 span { color: var(--pink-accent); font-size: 0.85em; }
+.calculator-header p {
+    margin-top: 0.15rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.14em;
+    color: var(--silver-dim);
+}
+
+
+/* =====================================================================
+   6. DISPLAY
+   ===================================================================== */
+.display {
+    position: relative;
+    min-height: 112px;
+    padding: 0.8rem 1.1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    overflow: hidden;
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(6, 2, 16, 0.85), rgba(26, 12, 56, 0.65));
+    border: 1px solid rgba(180, 150, 255, 0.28);
+    box-shadow: inset 0 2px 16px rgba(0, 0, 0, 0.7), 0 0 18px rgba(139, 92, 246, 0.18);
+}
+.display::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; top: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--violet-bright), transparent);
+    opacity: 0.8;
+}
+.display.is-glowing { animation: displayFlash 0.9s ease-out; }
+
+.display-previous {
+    min-height: 1.4em;
+    font-size: 1rem;
+    text-align: right;
+    white-space: pre;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--silver-dim);
+    letter-spacing: 0.04em;
+}
+
+.display-current {
+    font-family: var(--font-number);
+    font-size: 2.7rem;
+    font-weight: 600;
+    line-height: 1.15;
+    text-align: right;
+    white-space: pre;
+    overflow: hidden;
+    color: #fff;
+    text-shadow: 0 0 16px rgba(167, 139, 250, 0.75);
+}
+.display-current.tick   { animation: valueIn 0.28s var(--ease-out); }
+.display-current.is-error { color: #ffb3e6; text-shadow: 0 0 14px rgba(255, 120, 200, 0.8); }
+
+
+/* =====================================================================
+   7. KEYS
+   ===================================================================== */
+.keys {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.7rem;
+}
+
+.key {
+    position: relative;
+    overflow: hidden;
+    height: clamp(50px, 7.4vh, 64px);
+    border-radius: 16px;
+    font-family: var(--font-number);
+    font-size: 1.55rem;
+    font-weight: 600;
+    color: var(--silver);
+    background: linear-gradient(160deg, rgba(88, 56, 160, 0.55), rgba(30, 14, 64, 0.8));
+    border: 1px solid rgba(190, 160, 255, 0.22);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    transition: transform 0.18s var(--ease-out), box-shadow 0.25s ease, border-color 0.25s ease, background 0.25s ease, color 0.25s ease;
+    animation: keyIn 0.7s var(--ease-out) backwards;
+    animation-delay: calc(0.55s + var(--i, 0) * 35ms);
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+}
+
+/* Function keys (AC, ±, %, ⌫) */
+.key-fn {
+    color: var(--lavender);
+    background: linear-gradient(160deg, rgba(40, 24, 84, 0.85), rgba(16, 8, 38, 0.9));
+    border-color: rgba(160, 140, 230, 0.3);
+}
+
+/* Operator keys */
+.key-op {
+    color: #fff;
+    font-size: 1.8rem;
+    background: linear-gradient(160deg, #7c4ddb, #4a2a9c);
+    border-color: rgba(214, 190, 255, 0.45);
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+}
+
+.key[data-value="+"] {
+    animation: none;
+}
+
+.key[data-value="+"] .key-symbol {
+    position: relative;
+    z-index: 1;
+}
+
+/* Equals key */
+.key-equals {
+    color: #fff;
+    font-size: 1.9rem;
+    animation: none;
+    background: linear-gradient(135deg, #b583ff 0%, #7a5cff 55%, #5b7bff 100%);
+    border-color: rgba(240, 225, 255, 0.7);
+    text-shadow: 0 0 12px rgba(255, 255, 255, 0.9);
+    box-shadow: 0 0 20px rgba(150, 110, 255, 0.55), 0 6px 14px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.key-equals .key-symbol {
+    position: relative;
+    z-index: 1;
+}
+
+/* Hover glow (only on devices that really hover) */
+@media (hover: hover) {
+    .key:hover {
+        transform: translateY(-3px);
+        color: #fff;
+        border-color: rgba(220, 200, 255, 0.8);
+        box-shadow:
+            0 0 22px rgba(167, 139, 250, 0.75),
+            0 10px 20px rgba(0, 0, 0, 0.5),
+            inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    }
+    .key-op:hover     { background: linear-gradient(160deg, #9b6bff, #5c35bd); }
+    .key-equals:hover { box-shadow: 0 0 34px rgba(190, 150, 255, 0.95), 0 10px 22px rgba(0, 0, 0, 0.5); }
+}
+
+/* Press animation (mouse, touch and keyboard) */
+.key:active,
+.key.is-pressed {
+    transform: translateY(1px) scale(0.93);
+    box-shadow: 0 0 26px rgba(190, 150, 255, 0.95), inset 0 3px 10px rgba(0, 0, 0, 0.5);
+    transition-duration: 0.06s;
+}
+
+.key:focus-visible {
+    outline: 2px solid var(--lavender);
+    outline-offset: 2px;
+}
+
+.key-equals.is-glowing { animation: equalsGlow 0.9s ease-out; }
+
+/* Ripple effect */
+.ripple {
+    position: absolute;
+    z-index: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    transform: scale(0);
+    pointer-events: none;
+    animation: ripple 0.6s ease-out forwards;
+}
+
+
+/* =====================================================================
+   8. ANIMATIONS (KEYFRAMES)
+   ===================================================================== */
+@keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-50px) scale(0.97); }
+    to   { opacity: 1; transform: none; }
+}
+@keyframes riseIn {
+    from { opacity: 0; transform: translateY(50px) scale(0.97); }
+    to   { opacity: 1; transform: none; }
+}
+@keyframes keyIn {
+    from { opacity: 0; transform: translateY(18px) scale(0.85); }
+    to   { opacity: 1; transform: none; }
+}
+@keyframes orbDrift {
+    from { transform: translate(0, 0) scale(1); }
+    to   { transform: translate(6vmax, 4vmax) scale(1.15); }
+}
+@keyframes auraPulse {
+    0%, 100% { opacity: 0.65; transform: scale(1); }
+    50%      { opacity: 1;    transform: scale(1.06); }
+}
+@keyframes auraSurge {
+    0%   { opacity: 1;    transform: scale(1.22); }
+    100% { opacity: 0.65; transform: scale(1); }
+}
+@keyframes portraitBreath {
+    from { transform: scale(1); }
+    to   { transform: scale(1.04); }
+}
+@keyframes shine {
+    0%   { background-position: 160% 0, 0 0; }
+    55%, 100% { background-position: -60% 0, 0 0; }
+}
+@keyframes floatOrnament {
+    0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.9; }
+    50%      { transform: translateY(-10px) rotate(18deg); opacity: 0.5; }
+}
+@keyframes twinkle {
+    0%, 100% { opacity: 0.4; transform: scale(0.85); }
+    50%      { opacity: 1;   transform: scale(1.25); }
+}
+@keyframes spinSlow { to { transform: translate(-50%, -50%) rotate(360deg); } }
+.portrait-fallback svg { animation-name: spinFallback; }
+@keyframes spinFallback { to { transform: rotate(360deg); } }
+@keyframes spinStar { to { transform: rotate(360deg); } }
+
+/* --- Portrait image change --- */
+@keyframes imageIn {
+    0%   { opacity: 0; transform: scale(1.14); filter: brightness(2)    saturate(1.5); }
+    55%  { opacity: 1;                         filter: brightness(1.25) saturate(1.2); }
+    100% { opacity: 1; transform: scale(1);    filter: none; }
+}
+@keyframes glowBreathe {
+    0%, 100% { opacity: 0.6; }
+    50%      { opacity: 1; }
+}
+@keyframes flashPulse {
+    0%   { opacity: 0;   transform: scale(0.8); }
+    30%  { opacity: 0.9; }
+    100% { opacity: 0;   transform: scale(1.25); }
+}
+@keyframes ringExpand {
+    0%   { opacity: 1; transform: scale(0.2); }
+    100% { opacity: 0; transform: scale(3.2); }
+}
+@keyframes framePulse {
+    0% {
+        border-color: #fff;
+        box-shadow:
+            0 0 0 4px rgba(139, 92, 246, 0.3),
+            0 0 90px 22px rgba(200, 160, 255, 0.95),
+            0 25px 60px rgba(0, 0, 0, 0.6);
+    }
+    100% {
+        border-color: rgba(206, 184, 255, 0.5);
+        box-shadow:
+            0 0 0 4px rgba(139, 92, 246, 0.12),
+            0 0 40px rgba(139, 92, 246, 0.5),
+            0 25px 60px rgba(0, 0, 0, 0.6);
+    }
+}
+@keyframes sparkleDrift {
+    0%   { opacity: 0;   transform: translate(0, 0) scale(0.3) rotate(0deg); }
+    25%  { opacity: 1; }
+    60%  { opacity: 0.8; transform: translate(var(--dx, 0px), var(--dy, -14px)) scale(1) rotate(90deg); }
+    100% { opacity: 0;   transform: translate(calc(var(--dx, 0px) * 1.6), calc(var(--dy, -14px) * 1.6)) scale(0.3) rotate(180deg); }
+}
+@keyframes sparkleBurst {
+    0%   { opacity: 0; transform: translate(0, 0) scale(0.4) rotate(0deg); }
+    15%  { opacity: 1; }
+    100% { opacity: 0; transform: translate(var(--tx, 0px), var(--ty, 0px)) scale(1.1) rotate(160deg); }
+}
+
+/* --- Calculator --- */
+@keyframes shellGlow {
+    0%, 100% { box-shadow: 0 0 0 1px rgba(255,255,255,0.04) inset, 0 0 30px rgba(139, 92, 246, 0.3),  0 30px 70px rgba(0,0,0,0.65); }
+    50%      { box-shadow: 0 0 0 1px rgba(255,255,255,0.06) inset, 0 0 52px rgba(139, 92, 246, 0.55), 0 30px 70px rgba(0,0,0,0.65); }
+}
+@keyframes shellFlash {
+    0%   { box-shadow: 0 0 80px 20px rgba(200, 160, 255, 0.9), 0 30px 70px rgba(0,0,0,0.65); }
+    100% { box-shadow: 0 0 30px rgba(139, 92, 246, 0.3), 0 30px 70px rgba(0,0,0,0.65); }
+}
+@keyframes displayFlash {
+    0%   { border-color: #fff; box-shadow: inset 0 0 40px rgba(200, 170, 255, 0.8), 0 0 40px rgba(167, 139, 250, 0.9); }
+    100% { border-color: rgba(180, 150, 255, 0.28); box-shadow: inset 0 2px 16px rgba(0,0,0,0.7), 0 0 18px rgba(139, 92, 246, 0.18); }
+}
+@keyframes equalsGlow {
+    0%   { box-shadow: 0 0 0 0 rgba(230, 200, 255, 0.95); }
+    40%  { box-shadow: 0 0 46px 16px rgba(190, 140, 255, 0.85), 0 0 90px 34px rgba(111, 140, 255, 0.5); }
+    100% { box-shadow: 0 0 20px rgba(150, 110, 255, 0.55); }
+}
+@keyframes valueIn {
+    from { opacity: 0; transform: translateY(10px) scale(0.97); filter: blur(2px); }
+    to   { opacity: 1; transform: none; filter: none; }
+}
+@keyframes ripple {
+    to { transform: scale(3.2); opacity: 0; }
+}
+
+
+/* =====================================================================
+   9. RESPONSIVE
+   ===================================================================== */
+
+/* Tablet: stack portrait above calculator */
+@media (max-width: 900px) {
+    .app {
+        grid-template-columns: minmax(0, 420px);
+        gap: 1.6rem;
+        padding: 1.2rem;
+        align-content: center;
+    }
+    .portrait-frame {
+        height: clamp(220px, 34vh, 340px);
+    }
+    .magic-circle { width: 130%; }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+    .app { padding: 0.8rem; gap: 1.2rem; }
+    .portrait-frame { height: clamp(190px, 30vh, 260px); border-radius: 20px; }
+    .portrait-caption h2 { font-size: 1.15rem; }
+    .portrait-caption p  { font-size: 0.7rem; }
+    .calculator { padding: 1rem 0.85rem 1.1rem; border-radius: 22px; }
+    .display { min-height: 96px; padding: 0.65rem 0.9rem; }
+    .display-current { font-size: 2.3rem; }
+    .keys { gap: 0.55rem; }
+    .key { height: clamp(52px, 8vh, 60px); font-size: 1.4rem; border-radius: 14px; }
+    .orn-2, .orn-3, .orn-5 { right: 4px; left: auto; }
+    .sparkle-extra { display: none; }   /* fewer ambient sparkles on phones */
+}
+
+/* Short landscape screens (phones turned sideways) */
+@media (max-height: 560px) and (min-width: 600px) {
+    .app {
+        grid-template-columns: minmax(180px, 260px) minmax(280px, 380px);
+        gap: 1.5rem;
+        padding: 0.8rem;
+    }
+    .portrait-frame { height: 78vh; }
+    .calculator { padding: 0.8rem; }
+    .calculator-header { display: none; }
+    .display { min-height: 76px; margin-bottom: 0.6rem; }
+    .display-current { font-size: 2rem; }
+    .keys { gap: 0.4rem; }
+    .key { height: 40px; font-size: 1.15rem; }
+}
+
+
+/* =====================================================================
+   11. INTERACTIVE BACKGROUND + CURSOR TRAIL
+   Orbs drift slightly toward/away from the mouse (--mx / --my are set by script.js)
+   ===================================================================== */
+@property --angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+}
+
+.orb {
+    translate: calc(var(--mx, 0) * var(--depth, 20) * 1px) calc(var(--my, 0) * var(--depth, 20) * 1px);
+    transition: translate 0.8s var(--ease-out);
+}
+.orb-1 { --depth: -40; }
+.orb-2 { --depth: 55; }
+.orb-3 { --depth: -70; }
+
+#cursorTrail {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 60;
+    pointer-events: none;      /* never blocks clicks or text selection */
+}
+
+
+/* =====================================================================
+   12. PICTURE CARD — 3D TILT, ZOOM, PARALLAX, HOLOGRAM, GLOW BORDER
+   script.js (CardEffects) sets: --rx --ry --gx --gy --px --py
+   ===================================================================== */
+.portrait-frame {
+    transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(var(--lift, 0px)) scale(var(--zoom, 1));
+}
+
+/* Hovering lifts the card; tilting follows the cursor */
+@media (hover: hover) {
+    .portrait:hover .portrait-frame {
+        --lift: -8px;
+        --zoom: 1.03;
+        transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(var(--lift)) scale(var(--zoom));
+    }
+}
+
+/* While the mouse moves, follow it quickly; when it leaves, ease back smoothly */
+.portrait-frame.is-tilting {
+    transition: transform 0.12s linear, box-shadow 0.45s ease, border-color 0.45s ease;
+}
+
+/* Image zoom + parallax (individual transform properties never clash with other animations) */
+.portrait-img {
+    translate: var(--px, 0px) var(--py, 0px);
+    scale: var(--iz, 1);
+    transition: opacity 0.26s ease, transform 0.26s ease, filter 0.26s ease,
+                translate 0.7s var(--ease-out), scale 0.7s var(--ease-out);
+}
+.portrait-frame.is-tilting { --iz: 1.1; }
+.portrait-frame.is-tilting .portrait-img {
+    transition: opacity 0.26s ease, transform 0.26s ease, filter 0.26s ease,
+                translate 0.12s linear, scale 0.6s var(--ease-out);
+}
+.portrait-backdrop {
+    translate: calc(var(--px, 0px) * -1.8) calc(var(--py, 0px) * -1.8);
+    transition: translate 0.7s var(--ease-out);
+}
+
+/* Holographic shine that slides across the card following the cursor */
+.portrait-holo {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    mix-blend-mode: color-dodge;
+    background:
+        radial-gradient(circle at var(--gx, 50%) var(--gy, 50%), rgba(255, 255, 255, 0.55), transparent 38%),
+        linear-gradient(115deg,
+            transparent 18%, rgba(120, 160, 255, 0.5) 38%, rgba(190, 120, 255, 0.55) 50%,
+            rgba(120, 255, 230, 0.38) 62%, transparent 82%);
+    background-size: 100% 100%, 260% 100%;
+    background-position: 0 0, calc(var(--gx, 50%) * -1 + 120%) 0;
+    transition: opacity 0.5s ease;
+}
+.portrait-frame.is-tilting .portrait-holo { opacity: 0.6; }
+
+/* Animated purple glowing border (only spins while hovered) */
+.portrait-frame::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    padding: 2px;
+    border-radius: inherit;
+    pointer-events: none;
+    background: conic-gradient(from var(--angle), #8b5cf6, #f0a6ff, #6f8cff, #ffffff, #8b5cf6);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    animation: spinAngle 3s linear infinite paused;
+}
+.portrait-frame.is-tilting::before {
+    opacity: 1;
+    animation-play-state: running;
+}
+
+/* Little collectible-style particles that float up around the card on hover */
+.card-mote {
+    position: absolute;
+    z-index: 6;
+    left: var(--x);
+    top: var(--y);
+    width: var(--s, 5px);
+    height: var(--s, 5px);
+    border-radius: 50%;
+    background: var(--c, #d8c8ff);
+    box-shadow: 0 0 8px var(--c, #d8c8ff), 0 0 16px var(--c, #d8c8ff);
+    pointer-events: none;
+    animation: moteRise 1.5s ease-out forwards;
+}
+
+
+/* =====================================================================
+   13. CALCULATOR EXTRAS — result animation, equals shimmer, state slide
+   ===================================================================== */
+.display-current.tick.is-result { animation: resultIn 0.7s var(--ease-out); }
+.display-current.is-result {
+    background: linear-gradient(90deg, #ffffff, #d8c8ff, #ffffff);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+            background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: none;
+    filter: drop-shadow(0 0 12px rgba(167, 139, 250, 0.85));
+}
+.display-current.is-error.is-result { -webkit-text-fill-color: initial; background: none; }
+
+/* Equals key: a constant rotating light sweep */
+.key-equals::before {
+    content: "";
+    position: absolute;
+    inset: -60%;
+    z-index: 0;
+    pointer-events: none;
+    background: conic-gradient(from 0deg, transparent 0 70%, rgba(255, 255, 255, 0.55) 85%, transparent 100%);
+    animation: spinEquals 3.2s linear infinite;
+}
+
+/* Number keys glow lavender on hover */
+.key[data-action="digit"]:hover { background: linear-gradient(160deg, rgba(120, 82, 210, 0.7), rgba(44, 22, 92, 0.9)); }
+.key-fn[data-action="clear"]:hover     { border-color: rgba(255, 150, 220, 0.85); box-shadow: 0 0 22px rgba(255, 120, 200, 0.7); }
+.key-fn[data-action="backspace"]:hover { border-color: rgba(150, 200, 255, 0.85); box-shadow: 0 0 22px rgba(111, 140, 255, 0.75); }
+
+
+/* =====================================================================
+14. HERTA SPECIAL BUTTON
+   ===================================================================== */
+.herta-special {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    width: 100%;
+    height: clamp(52px, 7.4vh, 64px);
+    margin-top: 0.9rem;
+    border-radius: 18px;
+    font-family: var(--font-title);
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #fff;
+    text-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
+    background: linear-gradient(110deg, #2a0f66, #6d36e6 45%, #2a0f66);
+    background-size: 220% 100%;
+    box-shadow: 0 0 24px rgba(139, 92, 246, 0.65), 0 8px 18px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    animation: specialFlow 5s linear infinite, specialBreath 3s ease-in-out infinite;
+    transition: transform 0.25s var(--ease-out), letter-spacing 0.35s ease;
+    touch-action: manipulation;
+    -webkit-user-select: none;
+            user-select: none;
+}
+/* Rotating rainbow-ish border */
+.herta-special::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    padding: 2px;
+    border-radius: inherit;
+    pointer-events: none;
+    background: conic-gradient(from var(--angle), #8b5cf6, #f0a6ff, #6f8cff, #ffffff, #8b5cf6);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+    animation: spinAngle 4s linear infinite;
+}
+/* Light sweep */
+.herta-special::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.45) 50%, transparent 60%);
+    transform: translateX(-120%);
+    animation: specialSweep 3.6s ease-in-out infinite;
+}
+.hs-label, .hs-icon { position: relative; z-index: 3; }
+.hs-icon {
+    display: inline-block;
+    font-size: 1.3rem;
+    color: var(--pink-accent);
+    text-shadow: 0 0 10px var(--violet), 0 0 20px var(--pink-accent);
+    animation: spinStar 6s linear infinite;
+}
+.hs-icon-small { font-size: 0.95rem; color: var(--lavender); animation-direction: reverse; }
+.hs-ring {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 0;
+    width: 120px;
+    height: 120px;
+    margin: -60px 0 0 -60px;
+    border-radius: 50%;
+    border: 1px dashed rgba(230, 210, 255, 0.45);
+    pointer-events: none;
+    animation: spinStar 10s linear infinite;
+}
+.hs-ring-b { width: 80px; height: 80px; margin: -40px 0 0 -40px; animation-direction: reverse; border-style: dotted; }
+
+@media (hover: hover) {
+    .herta-special:hover {
+        transform: translateY(-3px) scale(1.02);
+        letter-spacing: 0.22em;
+        box-shadow: 0 0 44px rgba(190, 150, 255, 0.95), 0 12px 24px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    }
+    .herta-special:hover .hs-icon { animation-duration: 1.4s; }
+}
+.herta-special:active { transform: translateY(1px) scale(0.95); transition-duration: 0.06s; }
+.herta-special:focus-visible { outline: 2px solid var(--lavender); outline-offset: 3px; }
+.herta-special.is-busy { filter: saturate(1.5) brightness(1.2); pointer-events: none; }
+
+
+/* =====================================================================
+   15. HERTA SPECIAL ABILITY OVERLAY (full screen, never blocks clicks)
+   Timeline is ~4.4s and matches HertaSpecial.DURATION in script.js
+   ===================================================================== */
+.herta-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    pointer-events: none;
+    visibility: hidden;
+}
+.herta-overlay.is-active { visibility: visible; }
+.herta-overlay > * { grid-area: 1 / 1; }
+
+.ho-flood, .ho-whiteout, .ho-burst, .ho-ring, .ho-circle, .ho-hologram, .ho-text { opacity: 0; }
+
+/* Screen-wide purple lighting */
+.ho-flood {
+    width: 100%; height: 100%;
+    background:
+        radial-gradient(circle at 50% 50%, rgba(190, 150, 255, 0.75), rgba(110, 60, 230, 0.55) 40%, rgba(20, 6, 60, 0.8) 85%);
+}
+.is-active .ho-flood { animation: floodPulse 4.4s ease-in-out forwards; }
+
+/* Final lavender-white transition */
+.ho-whiteout {
+    width: 100%; height: 100%;
+    background: radial-gradient(circle, #ffffff, #e6d6ff 60%, #b99cff);
+}
+.is-active .ho-whiteout { animation: whiteOut 4.4s ease-in forwards; }
+
+/* Large purple energy burst */
+.ho-burst {
+    width: 30vmin; height: 30vmin;
+    border-radius: 50%;
+    background: radial-gradient(circle, #ffffff 0%, #e0c8ff 22%, #9a6bff 48%, rgba(111, 140, 255, 0) 72%);
+}
+.is-active .ho-burst { animation: burstOut 1.4s cubic-bezier(0.12, 0.7, 0.2, 1) forwards; }
+
+/* Expanding glowing rings */
+.ho-ring {
+    width: 30vmin; height: 30vmin;
+    border-radius: 50%;
+    border: 3px solid rgba(235, 220, 255, 0.95);
+    box-shadow: 0 0 30px 6px rgba(167, 139, 250, 0.85), inset 0 0 30px rgba(167, 139, 250, 0.7);
+}
+.is-active .ho-ring-1 { animation: ringBlast 1.8s ease-out 0.05s forwards; }
+.is-active .ho-ring-2 { animation: ringBlast 1.8s ease-out 0.35s forwards; }
+.is-active .ho-ring-3 { animation: ringBlast 1.8s ease-out 0.7s forwards; }
+
+/* Rotating magic circles */
+.ho-circle {
+    width: min(92vmin, 760px);
+    height: min(92vmin, 760px);
+    filter: drop-shadow(0 0 6px #a78bfa);
+}
+.ho-circle-inner { width: min(60vmin, 480px); height: min(60vmin, 480px); }
+.ho-line { fill: none; stroke: #eadcff; stroke-width: 0.7; }
+.ho-dash { stroke-dasharray: 2 4; stroke: #9db4ff; }
+.ho-dot  { fill: #ffffff; }
+.is-active .ho-circle-outer { animation: circleSpin 4.4s ease-in-out forwards; }
+.is-active .ho-circle-inner { animation: circleSpinReverse 4.4s ease-in-out forwards; }
+
+/* Holographic Herta (uses whichever portrait is on screen) */
+.ho-hologram {
+    position: relative;
+    width: min(44vmin, 340px);
+    aspect-ratio: 3 / 4;
+    border-radius: 18px;
+    background-size: cover;
+    background-position: center;
+    filter: hue-rotate(-12deg) saturate(1.5) brightness(1.2);
+    -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+            mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+}
+.ho-hologram::before {      /* scan lines */
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(to bottom, rgba(120, 90, 255, 0.35) 0 2px, transparent 2px 5px);
+    mix-blend-mode: overlay;
+}
+.ho-hologram::after {       /* moving scanner beam */
+    content: "";
+    position: absolute;
+    left: 0; right: 0;
+    height: 18%;
+    background: linear-gradient(to bottom, transparent, rgba(220, 200, 255, 0.7), transparent);
+    animation: scanBeam 1.1s linear infinite;
+}
+.is-active .ho-hologram { animation: holoIn 4.4s ease-in-out forwards; }
+
+/* Floating stars created by script.js */
+.ho-stars { position: absolute; inset: 0; }
+.ho-star {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    font-size: var(--size, 1.2rem);
+    color: var(--c, #fff);
+    text-shadow: 0 0 10px #a78bfa, 0 0 22px #8b5cf6;
+    opacity: 0;
+    animation: starFly var(--dur, 2.4s) ease-out var(--delay, 0s) forwards;
+}
+
+/* Activation message */
+.ho-text { text-align: center; padding: 0 1rem; align-self: end; margin-bottom: 14vh; }
+.ho-title {
+    font-family: var(--font-title);
+    font-size: clamp(1.15rem, 5vw, 2.8rem);
+    letter-spacing: 0.14em;
+    color: #fff;
+    text-shadow: 0 0 18px #a78bfa, 0 0 42px #8b5cf6, 3px 0 0 rgba(255, 90, 220, 0.6), -3px 0 0 rgba(90, 200, 255, 0.6);
+}
+.ho-sub {
+    margin-top: 0.4rem;
+    font-size: clamp(0.8rem, 2.4vw, 1.2rem);
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--lavender);
+    text-shadow: 0 0 12px #8b5cf6;
+}
+.is-active .ho-text { animation: titleIn 4.4s ease-out forwards; }
+
+/* ---- Calculator reacts while the ability is active (no animation clashes: uses overlays + transitions) ---- */
+body.herta-active .calculator { border-color: rgba(240, 225, 255, 0.85); }
+body.herta-active .calculator::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 0;
+    background: linear-gradient(115deg, transparent 30%, rgba(200, 160, 255, 0.35) 50%, transparent 70%);
+    background-size: 250% 100%;
+    animation: calcSweep 1.4s linear 3;
+}
+body.herta-active .key {
+    border-color: rgba(235, 220, 255, 0.85);
+    box-shadow: 0 0 20px rgba(190, 150, 255, 0.85), 0 6px 14px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    color: #fff;
+}
+body.herta-active .key::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(100deg, transparent 20%, rgba(255, 255, 255, 0.65) 50%, transparent 80%);
+    transform: translateX(-120%);
+    animation: keyWave 1s ease-in-out calc(var(--i, 0) * 70ms) 3;
+}
+body.herta-active .display {
+    border-color: rgba(240, 225, 255, 0.9);
+    box-shadow: inset 0 0 32px rgba(200, 170, 255, 0.55), 0 0 36px rgba(167, 139, 250, 0.9);
+}
+body.herta-active .display-current { letter-spacing: 0.12em; }
+body.herta-active .portrait-frame {
+    border-color: #fff;
+    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.3), 0 0 80px rgba(200, 160, 255, 0.95), 0 25px 60px rgba(0, 0, 0, 0.6);
+}
+.display-current { transition: letter-spacing 0.5s ease; }
+
+
+/* =====================================================================
+   16. NEW KEYFRAMES
+   ===================================================================== */
+@keyframes spinAngle    { to { --angle: 360deg; } }
+@keyframes spinEquals   { to { transform: rotate(360deg); } }
+@keyframes specialFlow  { to { background-position: 220% 0; } }
+@keyframes specialSweep { 0%, 55% { transform: translateX(-120%); } 100% { transform: translateX(120%); } }
+@keyframes specialBreath {
+    0%, 100% { box-shadow: 0 0 22px rgba(139, 92, 246, 0.55), 0 8px 18px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.35); }
+    50%      { box-shadow: 0 0 46px rgba(190, 140, 255, 0.95), 0 8px 18px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.5); }
+}
+@keyframes moteRise {
+    0%   { opacity: 0; transform: translate(0, 0) scale(0.4); }
+    20%  { opacity: 1; }
+    100% { opacity: 0; transform: translate(var(--dx, 0px), -70px) scale(1.1); }
+}
+@keyframes resultIn {
+    0%   { opacity: 0; transform: scale(0.6) translateY(14px); filter: blur(8px) drop-shadow(0 0 30px #fff); letter-spacing: 0.3em; }
+    60%  { opacity: 1; transform: scale(1.1); filter: blur(0) drop-shadow(0 0 22px rgba(200, 170, 255, 1)); }
+    100% { transform: none; letter-spacing: normal; }
+}
+
+/* --- Herta special ability --- */
+@keyframes floodPulse {
+    0%   { opacity: 0; }
+    6%   { opacity: 1; }
+    24%  { opacity: 0.22; }
+    38%  { opacity: 0.4; }
+    60%  { opacity: 0.28; }
+    84%  { opacity: 0.4; }
+    100% { opacity: 0; }
+}
+@keyframes whiteOut {
+    0%, 82% { opacity: 0; }
+    90%     { opacity: 0.95; }
+    100%    { opacity: 0; }
+}
+@keyframes burstOut {
+    0%   { opacity: 1; transform: scale(0.1); }
+    35%  { opacity: 1; }
+    100% { opacity: 0; transform: scale(9); }
+}
+@keyframes ringBlast {
+    0%   { opacity: 1; transform: scale(0.2); }
+    100% { opacity: 0; transform: scale(6.5); }
+}
+@keyframes circleSpin {
+    0%   { opacity: 0; transform: scale(0.2) rotate(-200deg); }
+    20%  { opacity: 1; }
+    80%  { opacity: 1; transform: scale(1) rotate(120deg); }
+    100% { opacity: 0; transform: scale(1.35) rotate(220deg); }
+}
+@keyframes circleSpinReverse {
+    0%   { opacity: 0; transform: scale(0.2) rotate(200deg); }
+    20%  { opacity: 1; }
+    80%  { opacity: 1; transform: scale(1) rotate(-160deg); }
+    100% { opacity: 0; transform: scale(1.5) rotate(-260deg); }
+}
+@keyframes holoIn {
+    0%, 14% { opacity: 0; transform: translateY(30px) scale(0.9); }
+    22%     { opacity: 0.95; transform: none; }
+    28%     { opacity: 0.35; }
+    34%     { opacity: 0.9; }
+    40%     { opacity: 0.55; transform: translateX(4px); }
+    46%     { opacity: 0.9; transform: none; }
+    80%     { opacity: 0.85; transform: translateY(-6px); }
+    100%    { opacity: 0; transform: translateY(-22px) scale(1.06); }
+}
+@keyframes scanBeam {
+    from { top: -20%; }
+    to   { top: 100%; }
+}
+@keyframes titleIn {
+    0%, 10% { opacity: 0; transform: scale(1.7); filter: blur(12px); }
+    20%     { opacity: 1; transform: scale(1);   filter: blur(0); }
+    24%     { transform: translateX(-6px); }
+    28%     { transform: translateX(6px); }
+    32%     { transform: none; }
+    80%     { opacity: 1; }
+    100%    { opacity: 0; transform: translateY(-14px) scale(0.96); }
+}
+@keyframes starFly {
+    0%   { opacity: 0; transform: translate(0, 0) scale(0.3) rotate(0deg); }
+    20%  { opacity: 1; }
+    100% { opacity: 0; transform: translate(var(--tx, 0px), var(--ty, -120px)) scale(1.2) rotate(240deg); }
+}
+@keyframes calcSweep { to { background-position: -150% 0; } }
+@keyframes keyWave {
+    0%   { transform: translateX(-120%); opacity: 1; }
+    100% { transform: translateX(120%);  opacity: 1; }
+}
+
+
+/* =====================================================================
+   17. REDUCED MOTION
+   ===================================================================== */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.001s !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001s !important;
+    }
+    .sparkle, .sparkle-burst { display: none; }
+    /* New effects */
+    .herta-special, .herta-special::before, .herta-special::after, .key-equals::before { animation: none !important; }
+    .card-mote, .ho-star, .ho-flood, .ho-burst, .ho-ring, .ho-circle, .ho-hologram, .ho-whiteout { display: none !important; }
+    .ho-text { opacity: 1 !important; animation: none !important; align-self: center; margin: 0; }
+    #cursorTrail { display: none; }
+    .portrait-frame, .portrait-img { transform: none; translate: none; scale: none; }
+}
