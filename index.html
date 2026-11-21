@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jono T. Flores - BSIT - 2B</title>
+
+    <!-- Fonts (fallbacks are defined in style.css if offline) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="calc.css">
+</head>
+<body>
+
+    <!-- Background layers -->
+    <canvas id="particles" aria-hidden="true"></canvas>
+    <canvas id="cursorTrail" aria-hidden="true"></canvas>
+    <div class="atmosphere" aria-hidden="true">
+        <span class="orb orb-1"></span>
+        <span class="orb orb-2"></span>
+        <span class="orb orb-3"></span>
+        <span class="vignette"></span>
+    </div>
+
+    <main class="app" id="app">
+
+        <!-- ================= PORTRAIT (changes on every number click) ================= -->
+        <aside class="portrait" id="portrait" aria-label="The Herta">
+            <div class="portrait-aura" aria-hidden="true"></div>
+
+            <div class="portrait-frame" id="portraitFrame">
+
+                <!-- Media layer: blurred backdrop + the actual image -->
+                <div class="portrait-media">
+                    <div class="portrait-backdrop" id="portraitBackdrop" aria-hidden="true"></div>
+                    <img id="hertaImage" class="portrait-img" src="Images/1.jpg" alt="The Herta" decoding="async">
+                </div>
+
+                <!-- Shown automatically if the portrait images cannot be loaded -->
+                <div class="portrait-fallback" id="portraitFallback" hidden>
+                    <svg viewBox="0 0 200 200" aria-hidden="true">
+                        <circle cx="100" cy="100" r="92" class="fb-ring"/>
+                        <circle cx="100" cy="100" r="76" class="fb-ring fb-dash"/>
+                        <polygon points="100,28 162,136 38,136" class="fb-tri"/>
+                        <polygon points="100,172 162,64 38,64" class="fb-tri"/>
+                        <path d="M100 62 Q100 100 138 100 Q100 100 100 138 Q100 100 62 100 Q100 100 100 62Z" class="fb-star"/>
+                    </svg>
+                    <p>Place <strong>1.jpg–15.jpg</strong><br>in the Images folder</p>
+                </div>
+
+                <!-- Effect layers -->
+                <div class="portrait-holo" aria-hidden="true"></div>
+                <div class="portrait-glow" aria-hidden="true"></div>
+                <div class="portrait-flash" id="portraitFlash" aria-hidden="true"></div>
+                <div class="portrait-shine" aria-hidden="true"></div>
+
+                <div class="portrait-caption">
+                    <span class="caption-star">✦</span>
+                    <h2>The Herta</h2>
+                    <p>Genius Society · #83</p>
+                </div>
+            </div>
+
+            <!-- Floating ornaments around the portrait -->
+            <span class="ornament orn-1" aria-hidden="true">✦</span>
+            <span class="ornament orn-2" aria-hidden="true">✿</span>
+            <span class="ornament orn-3" aria-hidden="true">✧</span>
+            <span class="ornament orn-4" aria-hidden="true">❀</span>
+            <span class="ornament orn-5" aria-hidden="true">✦</span>
+
+            <!-- Floating sparkles are created here by script.js -->
+        </aside>
+
+        <!-- ================= CALCULATOR ================= -->
+        <section class="calculator-wrap">
+
+            <!-- Rotating magic circle behind the calculator -->
+            <svg class="magic-circle" viewBox="0 0 200 200" aria-hidden="true">
+                <circle cx="100" cy="100" r="98" class="mc-line"/>
+                <circle cx="100" cy="100" r="92" class="mc-line mc-dash"/>
+                <circle cx="100" cy="100" r="72" class="mc-line"/>
+                <polygon points="100,30 160.6,135 39.4,135" class="mc-line"/>
+                <polygon points="100,170 160.6,65 39.4,65" class="mc-line"/>
+                <circle cx="100" cy="100" r="5" class="mc-dot"/>
+                <circle cx="100" cy="2" r="3" class="mc-dot"/>
+                <circle cx="100" cy="198" r="3" class="mc-dot"/>
+                <circle cx="2" cy="100" r="3" class="mc-dot"/>
+                <circle cx="198" cy="100" r="3" class="mc-dot"/>
+            </svg>
+
+            <div class="calculator" id="calculator">
+                <span class="corner corner-tl" aria-hidden="true">✦</span>
+                <span class="corner corner-tr" aria-hidden="true">✦</span>
+                <span class="corner corner-bl" aria-hidden="true">✦</span>
+                <span class="corner corner-br" aria-hidden="true">✦</span>
+
+                <header class="calculator-header">
+                    <h1><span aria-hidden="true">✿</span> Jono T. Flores <span aria-hidden="true">✿</span></h1>
+                    <p>BSIT - 2B</p>
+                </header>
+
+                <!-- Display -->
+                <div class="display" id="display">
+                    <div class="display-previous" id="previousLine" aria-hidden="true"></div>
+                    <div class="display-current" id="currentLine" role="status" aria-live="polite">0</div>
+                </div>
+
+                <!-- Keypad -->
+                <div class="keys" id="keys">
+                    <!-- Row 1 -->
+                    <button type="button" class="key key-fn"  data-action="clear"    data-keys="Escape|Delete" aria-label="All clear">AC</button>
+                    <button type="button" class="key key-fn"  data-action="toggle"   data-keys="F9"            aria-label="Toggle positive or negative">±</button>
+                    <button type="button" class="key key-fn"  data-action="percent"  data-keys="%"             aria-label="Percent">%</button>
+                    <button type="button" class="key key-op"  data-action="operator" data-value="÷" data-keys="/|÷" aria-label="Divide">÷</button>
+
+                    <!-- Row 2 -->
+                    <button type="button" class="key" data-action="digit" data-value="7" data-keys="7">7</button>
+                    <button type="button" class="key" data-action="digit" data-value="8" data-keys="8">8</button>
+                    <button type="button" class="key" data-action="digit" data-value="9" data-keys="9">9</button>
+                    <button type="button" class="key key-op" data-action="operator" data-value="×" data-keys="*|x|X|×" aria-label="Multiply">×</button>
+
+                    <!-- Row 3 -->
+                    <button type="button" class="key" data-action="digit" data-value="4" data-keys="4">4</button>
+                    <button type="button" class="key" data-action="digit" data-value="5" data-keys="5">5</button>
+                    <button type="button" class="key" data-action="digit" data-value="6" data-keys="6">6</button>
+                    <button type="button" class="key key-op" data-action="operator" data-value="-" data-keys="-" aria-label="Subtract">−</button>
+
+                    <!-- Row 4 -->
+                    <button type="button" class="key" data-action="digit" data-value="1" data-keys="1">1</button>
+                    <button type="button" class="key" data-action="digit" data-value="2" data-keys="2">2</button>
+                    <button type="button" class="key" data-action="digit" data-value="3" data-keys="3">3</button>
+                    <button type="button" class="key key-op" data-action="operator" data-value="+" data-keys="+" aria-label="Add"><span class="key-symbol">+</span></button>
+
+                    <!-- Row 5 -->
+                    <button type="button" class="key" data-action="digit"     data-value="0" data-keys="0">0</button>
+                    <button type="button" class="key" data-action="decimal"   data-keys=".|," aria-label="Decimal point">.</button>
+                    <button type="button" class="key key-fn" data-action="backspace" data-keys="Backspace" aria-label="Delete last digit">⌫</button>
+                    <button type="button" class="key key-equals" data-action="equals" data-keys="Enter|=" aria-label="Equals"><span class="key-symbol">=</span></button>
+                </div>
+
+                <!-- ================= UNIQUE BUTTON ================= -->
+                <button type="button" class="herta-special" id="hertaSpecial" aria-label="Activate My Unique Button (shortcut: H)">
+                    <span class="hs-ring hs-ring-a" aria-hidden="true"></span>
+                    <span class="hs-ring hs-ring-b" aria-hidden="true"></span>
+                    <span class="hs-icon" aria-hidden="true">✦</span>
+                    <span class="hs-label">My Unique Button</span>
+                    <span class="hs-icon hs-icon-small" aria-hidden="true">✧</span>
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- ================= HERTA SPECIAL ABILITY OVERLAY ================= -->
+    <div class="herta-overlay" id="hertaOverlay" aria-hidden="true">
+        <div class="ho-flood"></div>
+        <div class="ho-burst"></div>
+        <span class="ho-ring ho-ring-1"></span>
+        <span class="ho-ring ho-ring-2"></span>
+        <span class="ho-ring ho-ring-3"></span>
+
+        <svg class="ho-circle ho-circle-outer" viewBox="0 0 200 200">
+            <circle cx="100" cy="100" r="96" class="ho-line"/>
+            <circle cx="100" cy="100" r="88" class="ho-line ho-dash"/>
+            <polygon points="100,12 176,144 24,144" class="ho-line"/>
+            <polygon points="100,188 176,56 24,56" class="ho-line"/>
+            <circle cx="100" cy="4" r="3" class="ho-dot"/>
+            <circle cx="100" cy="196" r="3" class="ho-dot"/>
+            <circle cx="4" cy="100" r="3" class="ho-dot"/>
+            <circle cx="196" cy="100" r="3" class="ho-dot"/>
+        </svg>
+        <svg class="ho-circle ho-circle-inner" viewBox="0 0 200 200">
+            <circle cx="100" cy="100" r="70" class="ho-line ho-dash"/>
+            <circle cx="100" cy="100" r="58" class="ho-line"/>
+            <path d="M100 40 Q100 100 160 100 Q100 100 100 160 Q100 100 40 100 Q100 100 100 40Z" class="ho-line"/>
+            <circle cx="100" cy="100" r="6" class="ho-dot"/>
+        </svg>
+
+        <div class="ho-hologram" id="hoHologram"></div>
+        <div class="ho-stars" id="hoStars"></div>
+
+        <div class="ho-text">
+            <h2 class="ho-title" id="hoTitle">HERTA'S CURIOUS COLLECTION!</h2>
+            <p class="ho-sub" id="hoSub">✦ Genius Society · #83 ✦</p>
+        </div>
+        <div class="ho-whiteout"></div>
+    </div>
+
+    <script src="calc.js"></script>
+</body>
+</html>
